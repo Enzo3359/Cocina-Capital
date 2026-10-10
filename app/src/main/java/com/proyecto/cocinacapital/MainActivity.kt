@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             CocinaCapitalTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Cocina Capital",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
