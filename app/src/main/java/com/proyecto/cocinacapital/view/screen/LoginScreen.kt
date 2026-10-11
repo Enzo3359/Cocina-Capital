@@ -14,5 +14,8 @@ fun PantallaLogin(navController: NavController) {
         Button(onClick = { navController.navigate(Rutas.INICIO) }) {
             Text("Ir a inicio")
         }
+        Button(onClick = {navController.navigate(Rutas.REGISTRO) } ) {
+            Text("yendo a registro")
+        }
     }
 }
