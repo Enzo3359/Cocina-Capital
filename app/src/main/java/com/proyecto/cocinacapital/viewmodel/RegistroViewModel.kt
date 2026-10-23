@@ -1,14 +1,16 @@
 package com.proyecto.cocinacapital.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.proyecto.cocinacapital.model.RegistroErrores
-import com.proyecto.cocinacapital.model.RegistroUiState
+import androidx.lifecycle.viewModelScope
+import com.proyecto.cocinacapital.model.Usuario
+import com.proyecto.cocinacapital.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class RegistroViewModel : ViewModel() {
+class RegistroViewModel(private val repository: UsuarioRepository) : ViewModel() {
     private val _estado = MutableStateFlow(RegistroUiState())
     val estado: StateFlow<RegistroUiState> = _estado.asStateFlow()
 
@@ -90,7 +92,7 @@ class RegistroViewModel : ViewModel() {
         return null
     }
 
-    fun registrar(): Boolean {
+    fun registrar(onExito: () -> Unit) {
         val actual = _estado.value
         val errores = RegistroErrores(
             nombre = validarNombre(actual.nombre),
@@ -100,7 +102,20 @@ class RegistroViewModel : ViewModel() {
             aceptaTerminos = validarTerminos(actual.aceptaTerminos)
         )
         _estado.update { it.copy(errores = errores) }
-        return errores == RegistroErrores()
+        if (errores != RegistroErrores()) return
+
+        viewModelScope.launch {
+            if (repository.existeCorreo(actual.correo)) {
+                _estado.update {
+                    it.copy(errores = it.errores.copy(correo = "Ya existe una cuenta con este correo"))
+                }
+                return@launch
+            }
+            repository.registrar(
+                Usuario(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
+            )
+            onExito()
+        }
     }
 
 

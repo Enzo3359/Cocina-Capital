@@ -1,4 +1,4 @@
-package com.proyecto.cocinacapital.model
+package com.proyecto.cocinacapital.viewmodel
 
 data class RegistroErrores(
     val nombre: String? = null,
