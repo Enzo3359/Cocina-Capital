@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val repository: UsuarioRepository) : ViewModel() {
+class LoginViewModel(
+    private val repository: UsuarioRepository,
+    private val sesionViewModel: SesionViewModel
+) : ViewModel() {
     private val _estado = MutableStateFlow(LoginUiState())
     val estado: StateFlow<LoginUiState> = _estado.asStateFlow()
 
@@ -52,6 +55,7 @@ class LoginViewModel(private val repository: UsuarioRepository) : ViewModel() {
                 }
                 return@launch
             }
+            sesionViewModel.iniciarSesion(usuario)
             onExito()
         }
     }

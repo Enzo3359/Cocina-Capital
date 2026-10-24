@@ -6,4 +6,6 @@ object Rutas {
     const val INICIO = "inicio"
 
     const val REGISTRO = "registro"
+
+    const val MIS_TICKETS = "mis_tickets"
 }

@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import androidx.navigation.NavController
 import com.proyecto.cocinacapital.model.Promocion
 import com.proyecto.cocinacapital.navigation.Rutas
 import com.proyecto.cocinacapital.viewmodel.InicioViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun PantallaInicio(
@@ -27,6 +30,14 @@ fun PantallaInicio(
     viewModel: InicioViewModel
 ) {
     val promociones by viewModel.promociones.collectAsState()
+    val mensaje by viewModel.mensaje.collectAsState()
+
+    LaunchedEffect(mensaje) {
+        if (mensaje != null) {
+            delay(2000)
+            viewModel.mensajeMostrado()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -36,17 +47,29 @@ fun PantallaInicio(
     ) {
         Text("Promociones para ti", style = MaterialTheme.typography.headlineMedium)
 
+        mensaje?.let {
+            Text(it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
+        }
+
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(promociones) { promocion ->
-                TarjetaPromocion(promocion)
+                TarjetaPromocion(promocion, onComprar = { viewModel.comprarTicket(promocion) })
             }
         }
 
         OutlinedButton(
+            onClick = { navController.navigate(Rutas.MIS_TICKETS) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Mis tickets")
+        }
+
+        OutlinedButton(
             onClick = {
+                viewModel.cerrarSesion()
                 navController.navigate(Rutas.LOGIN) {
                     popUpTo(Rutas.INICIO) { inclusive = true }
                 }
@@ -59,7 +82,7 @@ fun PantallaInicio(
 }
 
 @Composable
-private fun TarjetaPromocion(promocion: Promocion) {
+private fun TarjetaPromocion(promocion: Promocion, onComprar: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -81,6 +104,12 @@ private fun TarjetaPromocion(promocion: Promocion) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Button(
+                onClick = onComprar,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Comprar ticket")
+            }
         }
     }
 }
