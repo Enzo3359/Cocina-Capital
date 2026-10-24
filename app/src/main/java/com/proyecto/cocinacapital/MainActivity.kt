@@ -12,6 +12,7 @@ import com.proyecto.cocinacapital.repository.TicketRepository
 import com.proyecto.cocinacapital.repository.UsuarioRepository
 import com.proyecto.cocinacapital.ui.theme.CocinaCapitalTheme
 import com.proyecto.cocinacapital.navigation.AppNavHost
+import com.proyecto.cocinacapital.viewmodel.AdminViewModel
 import com.proyecto.cocinacapital.viewmodel.InicioViewModel
 import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 import com.proyecto.cocinacapital.viewmodel.RegistroViewModel
@@ -38,12 +39,17 @@ class MainActivity : ComponentActivity() {
                 val ticketViewModel = remember {
                     TicketViewModel(ticketRepository, promocionRepository, sesionViewModel)
                 }
+                val adminViewModel = remember {
+                    AdminViewModel(promocionRepository, sesionViewModel)
+                }
 
                 AppNavHost(
                     registroViewModel = registroViewModel,
                     loginViewModel = loginViewModel,
                     inicioViewModel = inicioViewModel,
-                    ticketViewModel = ticketViewModel
+                    ticketViewModel = ticketViewModel,
+                    adminViewModel = adminViewModel,
+                    sesionViewModel = sesionViewModel
                 )
             }
         }

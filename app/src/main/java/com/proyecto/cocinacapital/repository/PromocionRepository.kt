@@ -14,6 +14,12 @@ class PromocionRepository(private val dao: PromocionDao) {
         }
     }
 
+    suspend fun crear(promocion: Promocion) = dao.insertar(promocion)
+
+    suspend fun actualizar(promocion: Promocion) = dao.actualizar(promocion)
+
+    suspend fun eliminar(promocion: Promocion) = dao.eliminar(promocion)
+
     private fun promocionesDeEjemplo(): List<Promocion> = listOf(
         Promocion(
             comercio = "Café del Puerto",

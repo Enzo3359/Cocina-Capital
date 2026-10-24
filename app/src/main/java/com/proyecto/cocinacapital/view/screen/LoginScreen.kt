@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.proyecto.cocinacapital.model.RolUsuario
 import com.proyecto.cocinacapital.navigation.Rutas
 import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 
@@ -61,8 +62,13 @@ fun PantallaLogin(
 
         Button(
             onClick = {
-                viewModel.iniciarSesion {
-                    navController.navigate(Rutas.INICIO) {
+                viewModel.iniciarSesion { usuario ->
+                    val ruta = when (usuario.rol) {
+                        RolUsuario.ADMINISTRADOR -> Rutas.ADMIN
+                        RolUsuario.PERSONAL -> Rutas.PERSONAL
+                        else -> Rutas.INICIO
+                    }
+                    navController.navigate(ruta) {
                         popUpTo(Rutas.LOGIN) { inclusive = true }
                     }
                 }

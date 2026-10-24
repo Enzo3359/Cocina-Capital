@@ -2,6 +2,7 @@ package com.proyecto.cocinacapital.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.proyecto.cocinacapital.model.Usuario
 import com.proyecto.cocinacapital.repository.UsuarioRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,12 @@ class LoginViewModel(
 ) : ViewModel() {
     private val _estado = MutableStateFlow(LoginUiState())
     val estado: StateFlow<LoginUiState> = _estado.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.sembrarAdminSiNoExiste()
+        }
+    }
 
     fun onCorreoChange(valor: String) {
         _estado.update { it.copy(correo = valor, errores = it.errores.copy(correo = null)) }
@@ -38,7 +45,7 @@ class LoginViewModel(
         return null
     }
 
-    fun iniciarSesion(onExito: () -> Unit) {
+    fun iniciarSesion(onExito: (Usuario) -> Unit) {
         val actual = _estado.value
         val errores = LoginErrores(
             correo = validarCorreo(actual.correo),
@@ -56,7 +63,7 @@ class LoginViewModel(
                 return@launch
             }
             sesionViewModel.iniciarSesion(usuario)
-            onExito()
+            onExito(usuario)
         }
     }
 }

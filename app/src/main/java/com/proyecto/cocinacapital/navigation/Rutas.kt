@@ -8,4 +8,7 @@ object Rutas {
     const val REGISTRO = "registro"
 
     const val MIS_TICKETS = "mis_tickets"
+
+    const val ADMIN = "admin"
+    const val PERSONAL = "personal"
 }
