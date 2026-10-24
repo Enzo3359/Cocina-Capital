@@ -13,6 +13,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,7 +36,7 @@ fun PantallaRegistro(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
     ) {
         Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
 
@@ -110,6 +111,10 @@ fun PantallaRegistro(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Registrarme")
+        }
+
+        TextButton(onClick = { navController.navigate(Rutas.LOGIN) }) {
+            Text("¿Ya tienes cuenta? Inicia sesión")
         }
     }
 }
