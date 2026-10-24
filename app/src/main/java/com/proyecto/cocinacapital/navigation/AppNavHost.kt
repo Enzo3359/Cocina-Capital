@@ -7,13 +7,15 @@ import androidx.navigation.compose.rememberNavController
 import com.proyecto.cocinacapital.view.screen.PantallaInicio
 import com.proyecto.cocinacapital.view.screen.PantallaLogin
 import com.proyecto.cocinacapital.view.screen.PantallaRegistro
+import com.proyecto.cocinacapital.viewmodel.InicioViewModel
 import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 import com.proyecto.cocinacapital.viewmodel.RegistroViewModel
 
 @Composable
 fun AppNavHost(
     registroViewModel: RegistroViewModel,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    inicioViewModel: InicioViewModel
 ) {
     val navController  = rememberNavController()
 
@@ -24,6 +26,6 @@ fun AppNavHost(
 
         composable(Rutas.REGISTRO) { PantallaRegistro(navController, registroViewModel) }
         composable(Rutas.LOGIN) { PantallaLogin(navController, loginViewModel) }
-        composable(Rutas.INICIO) { PantallaInicio(navController) }
+        composable(Rutas.INICIO) { PantallaInicio(navController, inicioViewModel) }
     }
 }

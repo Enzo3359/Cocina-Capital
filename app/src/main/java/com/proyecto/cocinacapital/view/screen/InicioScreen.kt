@@ -1,18 +1,86 @@
 package com.proyecto.cocinacapital.view.screen
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-
+import com.proyecto.cocinacapital.model.Promocion
+import com.proyecto.cocinacapital.navigation.Rutas
+import com.proyecto.cocinacapital.viewmodel.InicioViewModel
 
 @Composable
-fun PantallaInicio(navController: NavController) {
-    Column {
-        Text("Estoy en la pantalla inicio")
-        Button(onClick = { navController.popBackStack() }) {
-            Text("Volver")
+fun PantallaInicio(
+    navController: NavController,
+    viewModel: InicioViewModel
+) {
+    val promociones by viewModel.promociones.collectAsState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text("Promociones para ti", style = MaterialTheme.typography.headlineMedium)
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(promociones) { promocion ->
+                TarjetaPromocion(promocion)
+            }
+        }
+
+        OutlinedButton(
+            onClick = {
+                navController.navigate(Rutas.LOGIN) {
+                    popUpTo(Rutas.INICIO) { inclusive = true }
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Cerrar sesión")
+        }
+    }
+}
+
+@Composable
+private fun TarjetaPromocion(promocion: Promocion) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(promocion.comercio, style = MaterialTheme.typography.titleMedium)
+            Text(promocion.beneficio, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "Ticket: $${promocion.precioTicket}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                promocion.condiciones,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                promocion.periodo,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

@@ -10,6 +10,7 @@ import com.proyecto.cocinacapital.model.AppDatabase
 import com.proyecto.cocinacapital.repository.UsuarioRepository
 import com.proyecto.cocinacapital.ui.theme.CocinaCapitalTheme
 import com.proyecto.cocinacapital.navigation.AppNavHost
+import com.proyecto.cocinacapital.viewmodel.InicioViewModel
 import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 import com.proyecto.cocinacapital.viewmodel.RegistroViewModel
 
@@ -24,8 +25,13 @@ class MainActivity : ComponentActivity() {
                 val usuarioRepository = remember { UsuarioRepository(db.usuarioDao()) }
                 val registroViewModel = remember { RegistroViewModel(usuarioRepository) }
                 val loginViewModel = remember { LoginViewModel(usuarioRepository) }
+                val inicioViewModel = remember { InicioViewModel() }
 
-                AppNavHost(registroViewModel = registroViewModel, loginViewModel = loginViewModel)
+                AppNavHost(
+                    registroViewModel = registroViewModel,
+                    loginViewModel = loginViewModel,
+                    inicioViewModel = inicioViewModel
+                )
             }
         }
     }
