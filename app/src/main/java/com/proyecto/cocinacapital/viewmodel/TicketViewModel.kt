@@ -7,6 +7,7 @@ import com.proyecto.cocinacapital.repository.TicketRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 class TicketViewModel(
     ticketRepository: TicketRepository,
     promocionRepository: PromocionRepository,
-    sesionViewModel: SesionViewModel
+    private val sesionViewModel: SesionViewModel
 ) : ViewModel() {
 
     val tickets: StateFlow<List<TicketConPromocion>> = sesionViewModel.usuarioActual
@@ -37,9 +38,14 @@ class TicketViewModel(
                 }
             }
         }
+        .catch { emit(emptyList()) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+    fun cerrarSesion() {
+        sesionViewModel.cerrarSesion()
+    }
 }

@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,8 +40,20 @@ fun PantallaRegistro(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Icon(
+            Icons.Filled.Restaurant,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(48.dp)
+        )
+        Text(
+            "Cocina Capital",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
         Text("Crear cuenta", style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
@@ -108,9 +124,10 @@ fun PantallaRegistro(
                     }
                 }
             },
+            enabled = !estado.cargando,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Registrarme")
+            Text(if (estado.cargando) "Registrando..." else "Registrarme")
         }
 
         TextButton(onClick = { navController.navigate(Rutas.LOGIN) }) {

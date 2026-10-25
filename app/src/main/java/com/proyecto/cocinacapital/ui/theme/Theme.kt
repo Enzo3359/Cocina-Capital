@@ -42,6 +42,7 @@ fun CocinaCapitalTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = CocinaCapitalShapes,
         content = content
     )
 }

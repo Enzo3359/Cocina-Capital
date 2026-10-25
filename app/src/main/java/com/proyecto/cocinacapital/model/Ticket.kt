@@ -15,6 +15,7 @@ data class Ticket(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val idUsuario: Int,
     val idPromocion: Int,
+    val codigo: String,
     val estado: String = EstadoTicket.DISPONIBLE,
     val fechaCompra: Long = System.currentTimeMillis()
 )

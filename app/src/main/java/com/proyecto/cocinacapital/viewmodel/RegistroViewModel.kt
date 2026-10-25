@@ -94,6 +94,8 @@ class RegistroViewModel(private val repository: UsuarioRepository) : ViewModel()
 
     fun registrar(onExito: () -> Unit) {
         val actual = _estado.value
+        if (actual.cargando) return
+
         val errores = RegistroErrores(
             nombre = validarNombre(actual.nombre),
             correo = validarCorreo(actual.correo),
@@ -105,16 +107,25 @@ class RegistroViewModel(private val repository: UsuarioRepository) : ViewModel()
         if (errores != RegistroErrores()) return
 
         viewModelScope.launch {
-            if (repository.existeCorreo(actual.correo)) {
-                _estado.update {
-                    it.copy(errores = it.errores.copy(correo = "Ya existe una cuenta con este correo"))
+            _estado.update { it.copy(cargando = true) }
+            try {
+                if (repository.existeCorreo(actual.correo)) {
+                    _estado.update {
+                        it.copy(errores = it.errores.copy(correo = "Ya existe una cuenta con este correo"))
+                    }
+                    return@launch
                 }
-                return@launch
+                repository.registrar(
+                    Usuario(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
+                )
+                onExito()
+            } catch (e: Exception) {
+                _estado.update {
+                    it.copy(errores = it.errores.copy(correo = "Ocurrió un error al registrarte, intentá de nuevo"))
+                }
+            } finally {
+                _estado.update { it.copy(cargando = false) }
             }
-            repository.registrar(
-                Usuario(nombre = actual.nombre, correo = actual.correo, clave = actual.clave)
-            )
-            onExito()
         }
     }
 

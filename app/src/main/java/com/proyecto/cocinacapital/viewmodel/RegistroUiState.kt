@@ -6,6 +6,7 @@ data class RegistroUiState(
     val clave : String = "",
     val confirmarClave: String = "",
     val aceptaTerminos: Boolean = false,
+    val cargando: Boolean = false,
 
     val errores: RegistroErrores = RegistroErrores()
 )

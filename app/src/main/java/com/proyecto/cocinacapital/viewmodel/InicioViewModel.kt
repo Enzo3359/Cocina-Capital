@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class InicioViewModel(
@@ -36,14 +39,29 @@ class InicioViewModel(
                 }
                 .sortedBy { it.distanciaKm }
         }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = emptyList()
-    )
+    }.catch { emit(emptyList()) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _comprandoIds = MutableStateFlow<Set<Int>>(emptySet())
+    val comprandoIds: StateFlow<Set<Int>> = _comprandoIds.asStateFlow()
+
+    val nombreUsuario: StateFlow<String?> = sesionViewModel.usuarioActual
+        .map { it?.nombre }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = sesionViewModel.usuarioActual.value?.nombre
+        )
 
     init {
         viewModelScope.launch {
@@ -56,15 +74,28 @@ class InicioViewModel(
     }
 
     fun comprarTicket(promocion: Promocion) {
+        if (promocion.id in _comprandoIds.value) return
         val usuario = sesionViewModel.usuarioActual.value ?: return
+
+        _comprandoIds.update { it + promocion.id }
         viewModelScope.launch {
-            ticketRepository.comprarTicket(idUsuario = usuario.id, idPromocion = promocion.id)
-            _mensaje.value = "Ticket comprado para ${promocion.comercio}"
+            try {
+                ticketRepository.comprarTicket(idUsuario = usuario.id, idPromocion = promocion.id)
+                _mensaje.value = "Ticket comprado para ${promocion.comercio}"
+            } catch (e: Exception) {
+                _error.value = "No se pudo comprar el ticket, intentá de nuevo"
+            } finally {
+                _comprandoIds.update { it - promocion.id }
+            }
         }
     }
 
     fun mensajeMostrado() {
         _mensaje.value = null
+    }
+
+    fun errorMostrado() {
+        _error.value = null
     }
 
     fun cerrarSesion() {

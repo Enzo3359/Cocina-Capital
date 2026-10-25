@@ -48,6 +48,8 @@ class LoginViewModel(
 
     fun iniciarSesion(onExito: (Usuario) -> Unit) {
         val actual = _estado.value
+        if (actual.cargando) return
+
         val errores = LoginErrores(
             correo = validarCorreo(actual.correo),
             clave = validarClave(actual.clave)
@@ -56,15 +58,24 @@ class LoginViewModel(
         if (errores != LoginErrores()) return
 
         viewModelScope.launch {
-            val usuario = repository.iniciarSesion(actual.correo, actual.clave)
-            if (usuario == null) {
-                _estado.update {
-                    it.copy(errores = it.errores.copy(clave = "Correo o contraseña incorrectos"))
+            _estado.update { it.copy(cargando = true) }
+            try {
+                val usuario = repository.iniciarSesion(actual.correo, actual.clave)
+                if (usuario == null) {
+                    _estado.update {
+                        it.copy(errores = it.errores.copy(clave = "Correo o contraseña incorrectos"))
+                    }
+                    return@launch
                 }
-                return@launch
+                sesionViewModel.iniciarSesion(usuario)
+                onExito(usuario)
+            } catch (e: Exception) {
+                _estado.update {
+                    it.copy(errores = it.errores.copy(clave = "Ocurrió un error al iniciar sesión, intentá de nuevo"))
+                }
+            } finally {
+                _estado.update { it.copy(cargando = false) }
             }
-            sesionViewModel.iniciarSesion(usuario)
-            onExito(usuario)
         }
     }
 }

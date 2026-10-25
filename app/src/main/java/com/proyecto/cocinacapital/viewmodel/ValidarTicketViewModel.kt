@@ -20,28 +20,39 @@ class ValidarTicketViewModel(
     val resultado: StateFlow<ResultadoValidacion?> = _resultado.asStateFlow()
 
     fun validarCodigo(codigo: String) {
-        val idTicket = codigo.removePrefix("TICKET:").toIntOrNull()
-        if (idTicket == null) {
+        val codigoNormalizado = codigo.trim().uppercase()
+        if (codigoNormalizado.isEmpty()) {
             _resultado.value = ResultadoValidacion("Código no reconocido", valido = false)
             return
         }
 
         viewModelScope.launch {
-            val ticket = ticketRepository.buscarPorId(idTicket)
-            _resultado.value = when {
-                ticket == null -> ResultadoValidacion("Ticket no reconocido", valido = false)
-                ticket.estado == EstadoTicket.UTILIZADO ->
-                    ResultadoValidacion("Ticket ya utilizado", valido = false)
-                ticket.estado == EstadoTicket.VENCIDO ->
-                    ResultadoValidacion("Ticket vencido", valido = false)
-                ticket.estado == EstadoTicket.ANULADO ->
-                    ResultadoValidacion("Ticket anulado", valido = false)
-                else -> {
-                    ticketRepository.marcarUtilizado(ticket)
-                    ResultadoValidacion("Ticket válido, aceptado", valido = true)
+            try {
+                val ticket = ticketRepository.buscarPorCodigo(codigoNormalizado)
+                _resultado.value = when {
+                    ticket == null -> ResultadoValidacion("Ticket no reconocido", valido = false)
+                    ticket.estado == EstadoTicket.UTILIZADO ->
+                        ResultadoValidacion("Ticket ya utilizado", valido = false)
+                    ticket.estado == EstadoTicket.VENCIDO ->
+                        ResultadoValidacion("Ticket vencido", valido = false)
+                    ticket.estado == EstadoTicket.ANULADO ->
+                        ResultadoValidacion("Ticket anulado", valido = false)
+                    else -> {
+                        ticketRepository.marcarUtilizado(ticket)
+                        ResultadoValidacion("Ticket válido, aceptado", valido = true)
+                    }
                 }
+            } catch (e: Exception) {
+                _resultado.value = ResultadoValidacion("Ocurrió un error al validar, intentá de nuevo", valido = false)
             }
         }
+    }
+
+    fun errorEscaneo() {
+        _resultado.value = ResultadoValidacion(
+            "No se pudo escanear el código, probá de nuevo o ingresalo manualmente",
+            valido = false
+        )
     }
 
     fun cerrarSesion() {
