@@ -20,6 +20,7 @@ class LoginViewModel(
     init {
         viewModelScope.launch {
             repository.sembrarAdminSiNoExiste()
+            repository.sembrarPersonalSiNoExiste()
         }
     }
 

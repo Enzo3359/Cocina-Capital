@@ -14,8 +14,8 @@ import com.proyecto.cocinacapital.viewmodel.AdminViewModel
 import com.proyecto.cocinacapital.viewmodel.InicioViewModel
 import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 import com.proyecto.cocinacapital.viewmodel.RegistroViewModel
-import com.proyecto.cocinacapital.viewmodel.SesionViewModel
 import com.proyecto.cocinacapital.viewmodel.TicketViewModel
+import com.proyecto.cocinacapital.viewmodel.ValidarTicketViewModel
 
 @Composable
 fun AppNavHost(
@@ -24,7 +24,7 @@ fun AppNavHost(
     inicioViewModel: InicioViewModel,
     ticketViewModel: TicketViewModel,
     adminViewModel: AdminViewModel,
-    sesionViewModel: SesionViewModel
+    validarTicketViewModel: ValidarTicketViewModel
 ) {
     val navController  = rememberNavController()
 
@@ -38,6 +38,6 @@ fun AppNavHost(
         composable(Rutas.INICIO) { PantallaInicio(navController, inicioViewModel) }
         composable(Rutas.MIS_TICKETS) { PantallaMisTickets(navController, ticketViewModel) }
         composable(Rutas.ADMIN) { PantallaAdmin(navController, adminViewModel) }
-        composable(Rutas.PERSONAL) { PantallaPersonal(navController, sesionViewModel) }
+        composable(Rutas.PERSONAL) { PantallaPersonal(navController, validarTicketViewModel) }
     }
 }

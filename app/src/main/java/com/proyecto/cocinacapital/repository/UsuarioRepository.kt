@@ -24,6 +24,20 @@ class UsuarioRepository(private val dao: UsuarioDao) {
         }
     }
 
+    suspend fun sembrarPersonalSiNoExiste() {
+        val correoPersonal = "personal@cocinacapital.cl"
+        if (!existeCorreo(correoPersonal)) {
+            dao.insertar(
+                Usuario(
+                    nombre = "Personal",
+                    correo = correoPersonal,
+                    clave = "personal123",
+                    rol = RolUsuario.PERSONAL
+                )
+            )
+        }
+    }
+
     suspend fun iniciarSesion(correo: String, clave: String): Usuario? {
         val usuario = dao.obtenerPorCorreo(correo) ?: return null
         return if (usuario.clave == clave) usuario else null

@@ -18,6 +18,7 @@ import com.proyecto.cocinacapital.viewmodel.LoginViewModel
 import com.proyecto.cocinacapital.viewmodel.RegistroViewModel
 import com.proyecto.cocinacapital.viewmodel.SesionViewModel
 import com.proyecto.cocinacapital.viewmodel.TicketViewModel
+import com.proyecto.cocinacapital.viewmodel.ValidarTicketViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +43,9 @@ class MainActivity : ComponentActivity() {
                 val adminViewModel = remember {
                     AdminViewModel(promocionRepository, sesionViewModel)
                 }
+                val validarTicketViewModel = remember {
+                    ValidarTicketViewModel(ticketRepository, sesionViewModel)
+                }
 
                 AppNavHost(
                     registroViewModel = registroViewModel,
@@ -49,7 +53,7 @@ class MainActivity : ComponentActivity() {
                     inicioViewModel = inicioViewModel,
                     ticketViewModel = ticketViewModel,
                     adminViewModel = adminViewModel,
-                    sesionViewModel = sesionViewModel
+                    validarTicketViewModel = validarTicketViewModel
                 )
             }
         }
