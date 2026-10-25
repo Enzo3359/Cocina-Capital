@@ -1,5 +1,8 @@
 package com.proyecto.cocinacapital.view.screen
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,11 +20,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.proyecto.cocinacapital.model.Promocion
 import com.proyecto.cocinacapital.navigation.Rutas
+import com.proyecto.cocinacapital.util.obtenerUbicacion
 import com.proyecto.cocinacapital.viewmodel.InicioViewModel
+import com.proyecto.cocinacapital.viewmodel.PromocionConDistancia
 import kotlinx.coroutines.delay
 
 @Composable
@@ -31,6 +36,26 @@ fun PantallaInicio(
 ) {
     val promociones by viewModel.promociones.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
+    val context = LocalContext.current
+
+    val lanzadorPermiso = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permisos ->
+        val concedido = permisos[Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+            permisos[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        if (concedido) {
+            obtenerUbicacion(context) { lat, lng -> viewModel.actualizarUbicacion(lat, lng) }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        lanzadorPermiso.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
 
     LaunchedEffect(mensaje) {
         if (mensaje != null) {
@@ -55,8 +80,11 @@ fun PantallaInicio(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(promociones) { promocion ->
-                TarjetaPromocion(promocion, onComprar = { viewModel.comprarTicket(promocion) })
+            items(promociones) { promocionConDistancia ->
+                TarjetaPromocion(
+                    promocionConDistancia,
+                    onComprar = { viewModel.comprarTicket(promocionConDistancia.promocion) }
+                )
             }
         }
 
@@ -82,13 +110,22 @@ fun PantallaInicio(
 }
 
 @Composable
-private fun TarjetaPromocion(promocion: Promocion, onComprar: () -> Unit) {
+private fun TarjetaPromocion(promocionConDistancia: PromocionConDistancia, onComprar: () -> Unit) {
+    val promocion = promocionConDistancia.promocion
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(promocion.comercio, style = MaterialTheme.typography.titleMedium)
+            promocionConDistancia.distanciaKm?.let {
+                Text(
+                    "A %.1f km".format(it),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Text(promocion.beneficio, style = MaterialTheme.typography.bodyLarge)
             Text(
                 "Ticket: $${promocion.precioTicket}",

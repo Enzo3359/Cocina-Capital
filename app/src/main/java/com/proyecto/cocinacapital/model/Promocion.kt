@@ -10,5 +10,7 @@ data class Promocion(
     val beneficio: String,
     val precioTicket: Int,
     val condiciones: String,
-    val periodo: String
+    val periodo: String,
+    val latitud: Double = 0.0,
+    val longitud: Double = 0.0
 )
