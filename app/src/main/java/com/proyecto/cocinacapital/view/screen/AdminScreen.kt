@@ -1,5 +1,6 @@
 package com.proyecto.cocinacapital.view.screen
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,14 +9,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,6 +33,7 @@ import com.proyecto.cocinacapital.model.Promocion
 import com.proyecto.cocinacapital.navigation.Rutas
 import com.proyecto.cocinacapital.viewmodel.AdminViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaAdmin(
     navController: NavController,
@@ -34,44 +42,58 @@ fun PantallaAdmin(
     val promociones by viewModel.promociones.collectAsState()
     val estado by viewModel.estado.collectAsState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text("Administración de promociones", style = MaterialTheme.typography.headlineMedium)
-
-        Button(
-            onClick = { viewModel.abrirFormularioNuevo() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Nueva promoción")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Administración de promociones") },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            viewModel.cerrarSesion()
+                            navController.navigate(Rutas.LOGIN) {
+                                popUpTo(Rutas.ADMIN) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión")
+                    }
+                }
+            )
         }
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(promociones) { promocion ->
-                TarjetaPromocionAdmin(
-                    promocion = promocion,
-                    onEditar = { viewModel.abrirFormularioEditar(promocion) },
-                    onEliminar = { viewModel.eliminar(promocion) }
-                )
+            Button(
+                onClick = { viewModel.abrirFormularioNuevo() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Nueva promoción")
             }
-        }
 
-        OutlinedButton(
-            onClick = {
-                viewModel.cerrarSesion()
-                navController.navigate(Rutas.LOGIN) {
-                    popUpTo(Rutas.ADMIN) { inclusive = true }
+            if (!estado.mostrandoFormulario) {
+                estado.error?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cerrar sesión")
+            }
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(promociones, key = { it.id }) { promocion ->
+                    TarjetaPromocionAdmin(
+                        promocion = promocion,
+                        onEditar = { viewModel.abrirFormularioEditar(promocion) },
+                        onEliminar = { viewModel.eliminar(promocion) },
+                        modifier = Modifier.animateItem()
+                    )
+                }
+            }
         }
     }
 
@@ -85,18 +107,20 @@ fun PantallaAdmin(
                         value = estado.comercio,
                         onValueChange = viewModel::onComercioChange,
                         label = { Text("Comercio") },
+                        isError = estado.errores.comercio != null,
+                        supportingText = {
+                            estado.errores.comercio?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = estado.beneficio,
                         onValueChange = viewModel::onBeneficioChange,
                         label = { Text("Beneficio") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = estado.precioTicket,
-                        onValueChange = viewModel::onPrecioChange,
-                        label = { Text("Precio del ticket") },
+                        isError = estado.errores.beneficio != null,
+                        supportingText = {
+                            estado.errores.beneficio?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                        },
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
@@ -111,15 +135,20 @@ fun PantallaAdmin(
                         label = { Text("Periodo de vigencia") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    estado.error?.let {
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { viewModel.guardar() }) {
-                    Text("Guardar")
+                TextButton(onClick = { viewModel.guardar() }, enabled = !estado.cargando) {
+                    Crossfade(targetState = estado.cargando, label = "textoGuardar") { cargando ->
+                        Text(if (cargando) "Guardando..." else "Guardar")
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.cerrarFormulario() }) {
+                TextButton(onClick = { viewModel.cerrarFormulario() }, enabled = !estado.cargando) {
                     Text("Cancelar")
                 }
             }
@@ -131,20 +160,16 @@ fun PantallaAdmin(
 private fun TarjetaPromocionAdmin(
     promocion: Promocion,
     onEditar: () -> Unit,
-    onEliminar: () -> Unit
+    onEliminar: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(promocion.comercio, style = MaterialTheme.typography.titleMedium)
             Text(promocion.beneficio, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                "Ticket: $${promocion.precioTicket}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onEditar) { Text("Editar") }
                 TextButton(onClick = onEliminar) { Text("Eliminar") }

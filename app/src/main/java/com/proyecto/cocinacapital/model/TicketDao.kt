@@ -23,4 +23,7 @@ interface TicketDao {
 
     @Query("SELECT * FROM tickets WHERE codigo = :codigo LIMIT 1")
     suspend fun obtenerPorCodigo(codigo: String): Ticket?
+
+    @Query("SELECT * FROM tickets WHERE idUsuario = :idUsuario AND idPromocion = :idPromocion LIMIT 1")
+    suspend fun obtenerPorUsuarioYPromocion(idUsuario: Int, idPromocion: Int): Ticket?
 }

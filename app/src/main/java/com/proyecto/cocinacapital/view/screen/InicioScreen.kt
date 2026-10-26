@@ -190,17 +190,6 @@ private fun TarjetaPromocion(
                 )
             }
             Text(promocion.beneficio, style = MaterialTheme.typography.bodyLarge)
-            Surface(
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(
-                    "Ticket: $${promocion.precioTicket}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                )
-            }
             Text(
                 promocion.condiciones,
                 style = MaterialTheme.typography.bodySmall,
@@ -216,7 +205,7 @@ private fun TarjetaPromocion(
                 enabled = !comprando,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (comprando) "Comprando..." else "Comprar ticket")
+                Text(if (comprando) "Adquiriendo..." else "Adquirir ticket")
             }
         }
     }

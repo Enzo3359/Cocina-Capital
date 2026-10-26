@@ -29,6 +29,9 @@ class TicketRepository(private val dao: TicketDao) {
 
     suspend fun buscarPorCodigo(codigo: String): Ticket? = dao.obtenerPorCodigo(codigo)
 
+    suspend fun yaTieneTicket(idUsuario: Int, idPromocion: Int): Boolean =
+        dao.obtenerPorUsuarioYPromocion(idUsuario, idPromocion) != null
+
     suspend fun marcarUtilizado(ticket: Ticket) {
         dao.actualizar(ticket.copy(estado = EstadoTicket.UTILIZADO))
     }

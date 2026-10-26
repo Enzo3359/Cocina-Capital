@@ -5,7 +5,9 @@ data class AdminUiState(
     val editandoId: Int? = null,
     val comercio: String = "",
     val beneficio: String = "",
-    val precioTicket: String = "",
     val condiciones: String = "",
-    val periodo: String = ""
+    val periodo: String = "",
+    val cargando: Boolean = false,
+    val error: String? = null,
+    val errores: AdminErrores = AdminErrores()
 )

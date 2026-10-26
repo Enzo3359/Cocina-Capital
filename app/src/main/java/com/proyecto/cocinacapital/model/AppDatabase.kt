@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Usuario::class, Promocion::class, Ticket::class], version = 6, exportSchema = false)
+@Database(entities = [Usuario::class, Promocion::class, Ticket::class], version = 8, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun usuarioDao(): UsuarioDao

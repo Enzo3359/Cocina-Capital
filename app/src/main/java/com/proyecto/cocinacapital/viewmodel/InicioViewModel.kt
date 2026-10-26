@@ -80,8 +80,12 @@ class InicioViewModel(
         _comprandoIds.update { it + promocion.id }
         viewModelScope.launch {
             try {
+                if (ticketRepository.yaTieneTicket(usuario.id, promocion.id)) {
+                    _error.value = "Ya tenés un ticket de esta promoción"
+                    return@launch
+                }
                 ticketRepository.comprarTicket(idUsuario = usuario.id, idPromocion = promocion.id)
-                _mensaje.value = "Ticket comprado para ${promocion.comercio}"
+                _mensaje.value = "Ticket adquirido para ${promocion.comercio}"
             } catch (e: Exception) {
                 _error.value = "No se pudo comprar el ticket, intentá de nuevo"
             } finally {
